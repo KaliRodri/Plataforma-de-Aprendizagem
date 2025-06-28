@@ -4,12 +4,11 @@ from questions import get_random_question, create_questions_table, insert_sample
 from ai_assistant import explain_error
 import sqlite3
 
-# Inicializa o banco de dados
 create_users_table()
 create_questions_table()
 # insert_sample_questions()
 
-# Página principal
+
 st.set_page_config(page_title="Plataforma", page_icon="📚")
 st.title("📚 Plataforma de Aprendizagem com IA")
 
@@ -44,30 +43,38 @@ elif menu == "Login":
             st.write("🔜 A próxima etapa será o acesso ao banco de questões.")
         else:
             st.error("Email ou senha inválidos.")
-            
+
 if "logged_user" in st.session_state:
     user = st.session_state.logged_user
+    email = user[2]  
+    name = user[1]  
     st.subheader("📝 Responda à questão abaixo:")
 
-    question_data = get_random_question()
+  
+    if "question_data" not in st.session_state:
+        st.session_state.question_data = get_random_question()
+
+    question_data = st.session_state.question_data
+
     if question_data:
         q_id, theme, level, question, a, b, c, d, correct = question_data
-        
+
         st.write(f"**Tema:** {theme}  |  **Nível:** {level}")
         st.write(question)
-        
+
         options = {
-        "a": a,
-        "b": b,
-        "c": c,
-        "d": d
+            f"A) {a}": "a",
+            f"B) {b}": "b",
+            f"C) {c}": "c",
+            f"D) {d}": "d"
         }
-        
-        selected = st.radio("Escolha uma opção:" , options)
-        
+
+        selected_label = st.radio("Escolha uma opção:", list(options.keys()))
+        selected = options[selected_label]
+
         if st.button("Enviar Resposta"):
             is_correct = 1 if selected == correct else 0
-            
+
             conn = sqlite3.connect('users.db')
             c = conn.cursor()
             c.execute('''
@@ -76,14 +83,22 @@ if "logged_user" in st.session_state:
             ''', (email, q_id, selected, is_correct))
             conn.commit()
             conn.close()
-        
+
             if is_correct:
                 st.success("✅ Resposta correta!")
             else:
                 st.error("❌ Resposta incorreta.")
-                explicacao = explain_error(question, options[selected], theme)
+                name = user[1]  # Pega o nome do usuário logado
+                explicacao = explain_error(
+                name,
+                question,
+                {"a": a, "b": b, "c": c, "d": d},
+                correct,
+                selected,
+                theme
+            )
                 st.info("💡 Explicação:")
                 st.write(explicacao)
-    
-    
-     
+
+            # Libera para sortear nova questão na próxima vez
+            del st.session_state.question_data
