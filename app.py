@@ -1,8 +1,11 @@
 import streamlit as st
 from auth import create_users_table, register_user, login_user
+from questions import create_questions_table, insert_sample_questions
 
 # Inicializa o banco de dados
 create_users_table()
+create_questions_table()
+# insert_sample_questions()
 
 # Página principal
 st.set_page_config(page_title="Plataforma", page_icon="📚")
