@@ -1,6 +1,6 @@
 import google.generativeai as genai
 
-genai.configure(api_key="AIzaSyBNJresJSERYhCs6qJTEdoLm_b-hVJBJLQ")
+genai.configure(api_key="#")
 
 def explain_error(pergunta, alternativa_errada, tema):
     prompt = f"""
