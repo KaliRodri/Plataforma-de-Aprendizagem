@@ -1,5 +1,15 @@
 import sqlite3
+import random
 
+def get_random_question():
+    conn = sqlite3.connect('users.db')
+    c = conn.cursor()
+    c.execute('SELECT * FROM questions')
+    questions = c.fetchall()
+    conn.close()
+    if questions:
+        return random.choice(questions)
+    return None
 
 def create_questions_table():
     conn = sqlite3.connect('users.db')
